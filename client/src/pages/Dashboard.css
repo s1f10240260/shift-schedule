@@ -126,6 +126,15 @@
   border-color: #ccc;
 }
 
+.qr-btn {
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.qr-btn:hover {
+  background-color: #eff6ff;
+}
+
 .loading {
   text-align: center;
   padding: 3rem;

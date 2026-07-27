@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, KeyboardEvent } from 'react';
+import { useState, useEffect, KeyboardEvent } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { shiftApi, settingsApi } from '../services/api';
 import { generateDateRange, formatMonthDay, getDayName, isSaturday, isSunday } from '../utils/dateUtils';
@@ -39,23 +39,6 @@ function formatHours(hours: number): string {
   const m = Math.round((hours - h) * 60);
   if (m === 0) return String(h);
   return String(h) + "." + String(m);
-}
-
-function calcStaffCountForDate(shifts: ShiftData, employeeIds: number[], date: string, hour: number): number {
-  let count = 0;
-  for (const empId of employeeIds) {
-    const shiftData = shifts[empId]?.[date];
-    if (!shiftData || shiftData.isOff || !shiftData.startTime || !shiftData.endTime) continue;
-    const start = parseTime(shiftData.startTime);
-    const end = parseTime(shiftData.endTime);
-    if (start === null || end === null) continue;
-    if (end > start) {
-      if (hour >= start && hour < end) count++;
-    } else {
-      if (hour >= start || hour < end) count++;
-    }
-  }
-  return count;
 }
 
 function exportCSV(dates: string[], employees: any[], shifts: ShiftData) {
@@ -114,7 +97,6 @@ function ShiftEditor() {
     const row = parseInt(target.dataset.row, 10);
     const col = parseInt(target.dataset.col, 10);
     const field = target.dataset.field;
-    const inputs = document.querySelectorAll('.shift-cell input.time-input');
     const totalCols = dates.length;
     let nextRow = row;
     let nextCol = col;
@@ -234,7 +216,7 @@ function ShiftEditor() {
     try {
       const shiftArray: any[] = [];
       Object.entries(shifts).forEach(([employeeId, employeeShifts]) => {
-        Object.entries(employeeShifts).forEach(([date, shiftData]) => {
+        Object.entries(employeeShifts).forEach(([date, shiftData]: [string, any]) => {
           if (shiftData.startTime || shiftData.isOff) {
             shiftArray.push({
               employee_id: Number(employeeId),
@@ -276,7 +258,6 @@ function ShiftEditor() {
 
   const displayEmployees = getPageEmployees();
   const emptyRows = MAX_ROWS - displayEmployees.length;
-  const empIds = displayEmployees.map((e) => e.id);
 
   const calcEmployeeHours = (empId: number): number => {
     let total = 0;

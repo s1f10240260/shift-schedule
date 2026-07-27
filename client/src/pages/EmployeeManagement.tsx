@@ -142,7 +142,7 @@ function EmployeeManagement() {
             <div key={page} className="page-section">
               <h3>ページ {page}</h3>
               <div className="employee-list">
-                {groupedEmployees[page].map((employee) => (
+                {groupedEmployees[page].map((employee: any) => (
                   <div key={employee.id} className="employee-item">
                     {editingId === employee.id ? (
                       <div className="edit-form">

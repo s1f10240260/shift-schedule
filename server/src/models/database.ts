@@ -62,6 +62,7 @@ export async function initDatabase(): Promise<void> {
       store_id INTEGER NOT NULL,
       start_date TEXT NOT NULL,
       end_date TEXT NOT NULL,
+      deadline TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (store_id) REFERENCES stores(id) ON DELETE CASCADE
     )
@@ -155,6 +156,10 @@ export async function initDatabase(): Promise<void> {
     )
   `);
 
+  try {
+    database.run("ALTER TABLE shift_periods ADD COLUMN deadline TEXT");
+  } catch (e) { }
+
   insertDefaultHolidays(database);
   saveDb();
 }
@@ -212,8 +217,9 @@ export function archiveOldShifts(monthsToKeep: number = 3): { archivedCount: num
   if (!db) return { archivedCount: 0, periods: [] };
 
   const cutoffDate = new Date();
+  const now = new Date();
   cutoffDate.setMonth(cutoffDate.getMonth() - monthsToKeep);
-  const cutoffStr = cutoffDate.toISOString().slice(0, 10);
+  const cutoffStr = cutoffDate.getFullYear() + '-' + String(cutoffDate.getMonth() + 1).padStart(2, '0') + '-' + String(cutoffDate.getDate()).padStart(2, '0');
 
   const periodsToArchive: number[] = [];
   const periodStmt = db.prepare(

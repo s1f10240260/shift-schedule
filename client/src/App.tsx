@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import ShiftEditor from './pages/ShiftEditor';
@@ -9,9 +9,10 @@ import PreferenceForm from './pages/PreferenceForm';
 import PreferenceSummary from './pages/PreferenceSummary';
 import './App.css';
 
-function App() {
+function AppContent() {
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
   const [storeName, setStoreName] = useState<string | null>(localStorage.getItem('storeName'));
+  const location = useLocation();
 
   const handleLogin = (newToken: string, name: string) => {
     localStorage.setItem('token', newToken);
@@ -28,11 +29,26 @@ function App() {
   };
 
   if (!token) {
-    return <Login onLogin={handleLogin} />;
+    return (
+      <Routes>
+        <Route path="/prefer/:employeeId" element={<PreferenceForm />} />
+        <Route path="*" element={<Login onLogin={handleLogin} />} />
+      </Routes>
+    );
+  }
+
+  const isPreferPage = location.pathname.startsWith('/prefer/');
+
+  if (isPreferPage) {
+    return (
+      <Routes>
+        <Route path="/prefer/:employeeId" element={<PreferenceForm />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    );
   }
 
   return (
-    <Router>
       <div className="app">
         <header className="app-header">
           <h1>南京亭 シフト表</h1>
@@ -47,12 +63,20 @@ function App() {
             <Route path="/shift/:periodId" element={<ShiftEditor />} />
             <Route path="/employees" element={<EmployeeManagement />} />
             <Route path="/settings" element={<Settings />} />
-            <Route path="/prefer/:employeeId/:periodId" element={<PreferenceForm />} />
+            <Route path="/prefer/:employeeId" element={<PreferenceForm />} />
             <Route path="/preferences/:periodId" element={<PreferenceSummary />} />
+            <Route path="/qrcodes/:periodId" element={<PreferenceSummary showQRCodes={true} />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
       </div>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <AppContent />
     </Router>
   );
 }

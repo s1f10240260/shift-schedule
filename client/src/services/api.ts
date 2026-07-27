@@ -39,8 +39,8 @@ export const employeeApi = {
 export const shiftApi = {
   getPeriods: () => api.get('/shifts/periods'),
 
-  createPeriod: (start_date: string, end_date: string) =>
-    api.post('/shifts/periods', { start_date, end_date }),
+  createPeriod: (start_date: string, end_date: string, deadline?: string) =>
+    api.post('/shifts/periods', { start_date, end_date, deadline }),
 
   getShifts: (periodId: number) =>
     api.get("/shifts/period/" + periodId),
@@ -79,6 +79,12 @@ export const preferenceApi = {
 
   getPublicData: (employeeId: number, periodId: number) =>
     api.get("/preferences/public/" + employeeId + "/" + periodId),
+
+  getPublicEmployee: (employeeId: number) =>
+    api.get("/preferences/public-employee/" + employeeId),
+
+  getPublicPeriods: (employeeId: number) =>
+    api.get("/preferences/public-periods/" + employeeId),
 
   getPublicEmployees: (periodId: number) =>
     api.get("/preferences/public-employees/" + periodId)

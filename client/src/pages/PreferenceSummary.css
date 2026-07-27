@@ -41,6 +41,75 @@
   font-size: 0.75rem;
 }
 
+.ps-qr-section {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.ps-qr-section h3 {
+  font-size: 0.9rem;
+  color: #334155;
+  margin-bottom: 0.25rem;
+}
+
+.ps-qr-hint {
+  font-size: 0.75rem;
+  color: #999;
+  margin-bottom: 0.75rem;
+}
+
+.ps-qr-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+.ps-qr-item {
+  text-align: center;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.ps-qr-img {
+  width: 120px;
+  height: 120px;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+}
+
+.ps-qr-name {
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+  color: #334155;
+}
+
+.ps-qr-tag {
+  font-size: 0.7rem;
+  color: #999;
+  margin-bottom: 0.25rem;
+}
+
+.ps-qr-url input {
+  width: 100%;
+  font-size: 0.6rem;
+  padding: 0.25rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 3px;
+  text-align: center;
+  color: #666;
+  background: white;
+}
+
+.ps-qr-url input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
 .ps-table-container {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -132,5 +201,8 @@
 @media (max-width: 768px) {
   .ps-header {
     flex-wrap: wrap;
+  }
+  .ps-qr-list {
+    grid-template-columns: repeat(2, 1fr);
   }
 }

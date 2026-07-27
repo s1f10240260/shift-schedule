@@ -31,8 +31,12 @@ function Dashboard() {
 
   const createNewPeriod = async () => {
     const next = getCurrentPeriod();
+    const startDate = new Date(next.start);
+    const deadline = new Date(startDate.getFullYear(), startDate.getMonth() - 1, 27);
+    const deadlineStr = deadline.toISOString().slice(0, 10);
+
     try {
-      const response = await shiftApi.createPeriod(next.start, next.end);
+      const response = await shiftApi.createPeriod(next.start, next.end, deadlineStr);
       navigate("/shift/" + response.data.id);
     } catch (error: any) {
       if (error.response?.data?.error) {
@@ -98,6 +102,11 @@ function Dashboard() {
         <button onClick={() => navigate('/settings')} className="nav-btn">
           設定
         </button>
+        {periods.length > 0 && (
+          <button onClick={() => navigate('/qrcodes/' + periods[0].id)} className="nav-btn qr-btn">
+            QRコード
+          </button>
+        )}
       </div>
     </div>
   );

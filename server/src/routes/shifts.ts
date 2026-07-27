@@ -28,7 +28,7 @@ router.get('/periods', authenticateToken, async (req: AuthRequest, res: Response
 });
 
 router.post('/periods', authenticateToken, async (req: AuthRequest, res: Response) => {
-  const { start_date, end_date } = req.body;
+  const { start_date, end_date, deadline } = req.body;
   const db = await getDb();
 
   const checkStmt = db.prepare("SELECT id FROM shift_periods WHERE store_id = ? AND start_date = ? AND end_date = ?");
@@ -41,12 +41,12 @@ router.post('/periods', authenticateToken, async (req: AuthRequest, res: Respons
     return;
   }
 
-  db.run("INSERT INTO shift_periods (store_id, start_date, end_date) VALUES (?, ?, ?)",
-    [req.storeId!, start_date, end_date]);
+  db.run("INSERT INTO shift_periods (store_id, start_date, end_date, deadline) VALUES (?, ?, ?, ?)",
+    [req.storeId!, start_date, end_date, deadline || null]);
   const result = db.exec("SELECT last_insert_rowid() as id");
   const periodId = result[0]?.values[0][0] as number;
   saveDatabase();
-  res.json({ id: periodId, start_date, end_date });
+  res.json({ id: periodId, start_date, end_date, deadline: deadline || null });
 });
 
 router.get('/period/:periodId', authenticateToken, async (req: AuthRequest, res: Response) => {
