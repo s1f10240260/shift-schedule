@@ -1,0 +1,386 @@
+.shift-editor {
+  background: white;
+  border-radius: 8px;
+  padding: 0.25rem 0.5rem;
+  height: calc(100vh - 55px);
+  display: flex;
+  flex-direction: column;
+}
+
+.editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid #dee2e6;
+  flex-shrink: 0;
+}
+
+.editor-header h2 {
+  color: #333;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.save-btn {
+  padding: 0.35rem 0.8rem;
+  background-color: #475569;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.save-btn:hover {
+  background-color: #5a6d82;
+}
+
+.save-btn:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.back-btn {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.75rem;
+}
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 0.25rem;
+  flex-shrink: 0;
+}
+
+.page-tabs button {
+  padding: 0.25rem 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  background: white;
+  font-size: 0.8rem;
+}
+
+.page-tabs button.active {
+  background-color: #334155;
+  color: white;
+  border-color: #334155;
+}
+
+.shift-table-container {
+  flex: 1;
+  overflow: auto;
+}
+
+.shift-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.7rem;
+  table-layout: fixed;
+}
+
+.shift-table th,
+.shift-table td {
+  border: 1px solid #ccc;
+  padding: 1px 2px;
+  text-align: center;
+  overflow: hidden;
+}
+
+.shift-table thead {
+  height: 36px;
+}
+
+.shift-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.shift-table tbody tr {
+  height: calc((100vh - 110px) / 19);
+  min-height: 22px;
+}
+
+.employee-header {
+  width: 72px;
+  min-width: 72px;
+  max-width: 72px;
+  background-color: #e8e8e8;
+  position: sticky;
+  left: 0;
+  z-index: 20;
+  color: #222;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+.date-header {
+  min-width: 0;
+  width: calc((100vw - 110px) / 31);
+  background-color: #f5f5f5;
+  color: #222;
+  font-size: 0.65rem;
+  line-height: 1.2;
+  padding: 2px 1px;
+  font-weight: bold;
+}
+
+.date-header.saturday {
+  background-color: #b8daff;
+  color: #003d80;
+}
+
+.date-header.sunday {
+  background-color: #f5c6cb;
+  color: #8b0000;
+}
+
+.date-main {
+  font-weight: bold;
+  font-size: 0.65rem;
+}
+
+.date-day {
+  font-size: 0.65rem;
+  font-weight: bold;
+}
+
+.employee-cell {
+  text-align: center;
+  background-color: #f8f8f8;
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  padding: 1px 2px;
+  color: #222;
+}
+
+.employee-name {
+  font-weight: bold;
+  font-size: 0.7rem;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.shift-cell {
+  min-width: 0;
+  width: calc((100vw - 110px) / 31);
+  padding: 1px !important;
+  vertical-align: middle;
+}
+
+.shift-cell.saturday {
+  background-color: #e0f0ff;
+}
+
+.shift-cell.sunday {
+  background-color: #fff0f0;
+}
+
+.time-inputs {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0px;
+  line-height: 1;
+}
+
+.time-input {
+  width: 28px;
+  padding: 0px;
+  border: 1px solid #bbb;
+  border-radius: 2px;
+  font-size: 0.65rem;
+  text-align: center;
+  background: white;
+  line-height: 1.3;
+}
+
+.time-input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.time-separator {
+  font-size: 0.55rem;
+  color: #888;
+  line-height: 1;
+}
+
+.off-mark {
+  color: #ef4444;
+  font-weight: bold;
+  font-size: 0.8rem;
+  line-height: 1;
+}
+
+.off-btn {
+  padding: 0px 2px;
+  font-size: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+  cursor: pointer;
+  background: #f0f0f0;
+  line-height: 1.2;
+  display: block;
+  margin: 0 auto;
+}
+
+.off-btn:hover {
+  background-color: #e0e0e0;
+}
+
+.day-hours {
+  font-size: 0.5rem;
+  color: #3b82f6;
+  font-weight: 500;
+  text-align: center;
+  line-height: 1;
+  margin-top: 1px;
+}
+
+.total-header {
+  width: 40px;
+  min-width: 40px;
+  max-width: 40px;
+  background-color: #dbeafe;
+  color: #1e40af;
+  font-size: 0.65rem;
+  font-weight: bold;
+  position: sticky;
+  right: 0;
+  z-index: 20;
+}
+
+.total-cell {
+  width: 40px;
+  min-width: 40px;
+  max-width: 40px;
+  font-size: 0.6rem;
+  font-weight: bold;
+  color: #1e40af;
+  background-color: #f8f8f8;
+  position: sticky;
+  right: 0;
+  z-index: 10;
+  text-align: center;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.export-btn {
+  padding: 0.35rem 0.8rem;
+  background-color: #fff;
+  color: #1a1a1a;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.export-btn:hover {
+  background-color: #f5f5f5;
+}
+
+.pref-btn {
+  padding: 0.35rem 0.8rem;
+  background-color: #fff;
+  color: #3b82f6;
+  border: 1px solid #3b82f6;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.pref-btn:hover {
+  background-color: #eff6ff;
+}
+
+@media (max-width: 768px) {
+  .shift-editor {
+    padding: 0.15rem 0.25rem;
+    height: calc(100vh - 45px);
+  }
+  .editor-header {
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+  .editor-header h2 {
+    font-size: 0.9rem;
+  }
+  .header-actions {
+    gap: 0.25rem;
+  }
+  .header-actions button {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.6rem;
+  }
+  .shift-table-container {
+    -webkit-overflow-scrolling: touch;
+  }
+  .shift-table {
+    width: auto;
+    min-width: 100%;
+    table-layout: auto;
+  }
+  .shift-table th,
+  .shift-table td {
+    min-width: 48px;
+    width: 48px;
+    padding: 2px 3px;
+  }
+  .employee-header {
+    width: 60px;
+    min-width: 60px;
+    max-width: 60px;
+    position: sticky;
+    left: 0;
+    z-index: 20;
+  }
+  .employee-cell {
+    width: 60px;
+    min-width: 60px;
+    max-width: 60px;
+    position: sticky;
+    left: 0;
+    z-index: 10;
+  }
+  .employee-name {
+    font-size: 0.7rem;
+  }
+  .date-header {
+    min-width: 48px;
+    width: 48px;
+  }
+  .date-main {
+    font-size: 0.7rem;
+  }
+  .date-day {
+    font-size: 0.7rem;
+  }
+  .shift-cell {
+    min-width: 48px;
+    width: 48px;
+  }
+  .time-input {
+    width: 36px;
+    font-size: 0.7rem;
+  }
+  .total-header,
+  .total-cell {
+    position: sticky;
+    right: 0;
+    z-index: 20;
+  }
+  .page-tabs button {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.7rem;
+  }
+}

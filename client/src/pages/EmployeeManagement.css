@@ -1,0 +1,211 @@
+.employee-management {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.em-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.em-header h2 {
+  color: #333;
+}
+
+.back-btn {
+  padding: 0.5rem 1rem;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.back-btn:hover {
+  background-color: #5a6268;
+}
+
+.add-form {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+  align-items: end;
+}
+
+.form-row input,
+.form-row select {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.form-row input {
+  flex: 2;
+}
+
+.form-row select {
+  flex: 1;
+}
+
+.form-row button {
+  padding: 0.5rem 1rem;
+  background-color: #475569;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.form-row button:hover {
+  background-color: #5a6d82;
+}
+
+.page-section {
+  margin-bottom: 2rem;
+}
+
+.page-section h3 {
+  color: #333;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.employee-list {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.employee-item {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.employee-item:last-child {
+  border-bottom: none;
+}
+
+.emp-name {
+  flex: 2;
+  font-weight: bold;
+  color: #333;
+}
+
+.emp-tag {
+  flex: 1;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 0.875rem;
+}
+
+.emp-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.emp-actions button {
+  padding: 0.25rem 0.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.emp-actions button:first-child {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.emp-actions .delete-btn {
+  background-color: #666;
+  color: white;
+}
+
+.edit-form {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.edit-form input,
+.edit-form select {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.edit-form input {
+  flex: 2;
+}
+
+.edit-form select {
+  flex: 1;
+}
+
+.edit-form button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.edit-form button:first-of-type {
+  background-color: #475569;
+  color: white;
+}
+
+.edit-form button:last-child {
+  background-color: #6c757d;
+  color: white;
+}
+
+.no-employees {
+  text-align: center;
+  padding: 3rem;
+  background: white;
+  border-radius: 8px;
+  color: #666;
+}
+
+@media (max-width: 768px) {
+  .em-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .form-row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .form-row input,
+  .form-row select {
+    flex: auto;
+    width: 100%;
+  }
+  .employee-item {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .emp-name {
+    flex: auto;
+    width: 100%;
+  }
+  .edit-form {
+    flex-wrap: wrap;
+  }
+  .edit-form input,
+  .edit-form select {
+    width: 100%;
+    flex: auto;
+  }
+}

@@ -1,0 +1,185 @@
+.pf-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 1rem;
+  background: white;
+  min-height: 100vh;
+}
+
+.pf-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  color: #666;
+}
+
+.pf-header {
+  text-align: center;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.pf-header h1 {
+  font-size: 1.5rem;
+  color: #1a1a1a;
+  margin-bottom: 0.25rem;
+}
+
+.pf-period {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.pf-tag {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  background-color: #e2e8f0;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  color: #475569;
+  margin-top: 0.25rem;
+}
+
+.pf-summary {
+  text-align: center;
+  padding: 0.75rem;
+  background-color: #f0f4f8;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: #334155;
+}
+
+.pf-summary strong {
+  color: #3b82f6;
+  font-size: 1.1rem;
+}
+
+.pf-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.pf-actions button {
+  flex: 1;
+  padding: 0.5rem;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: #334155;
+}
+
+.pf-actions button:hover {
+  background-color: #e2e8f0;
+}
+
+.pf-calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 1.5rem;
+}
+
+.pf-day {
+  padding: 0.5rem 0.25rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 6px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+}
+
+.pf-day:hover {
+  border-color: #94a3b8;
+}
+
+.pf-day.available {
+  background-color: #dbeafe;
+  border-color: #3b82f6;
+}
+
+.pf-day.saturday {
+  color: #2563eb;
+}
+
+.pf-day.sunday,
+.pf-day.sunday.available {
+  color: #dc2626;
+}
+
+.pf-day.sunday.available {
+  background-color: #fee2e2;
+  border-color: #ef4444;
+}
+
+.pf-date-num {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.pf-date-day {
+  font-size: 0.65rem;
+  color: #999;
+}
+
+.pf-check {
+  font-size: 0.9rem;
+  margin-top: 2px;
+}
+
+.pf-day.available .pf-check {
+  color: #3b82f6;
+}
+
+.pf-day:not(.available) .pf-check {
+  color: #ccc;
+}
+
+.pf-submit {
+  text-align: center;
+}
+
+.pf-submit button {
+  padding: 0.75rem 3rem;
+  background-color: #334155;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.pf-submit button:hover {
+  background-color: #475569;
+}
+
+.pf-submit button.saved {
+  background-color: #22c55e;
+}
+
+.pf-submit button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+  .pf-container {
+    padding: 0.5rem;
+  }
+  .pf-day {
+    padding: 0.35rem 0.15rem;
+  }
+  .pf-date-num {
+    font-size: 0.75rem;
+  }
+  .pf-date-day {
+    font-size: 0.6rem;
+  }
+}

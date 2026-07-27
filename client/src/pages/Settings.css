@@ -1,0 +1,244 @@
+.settings {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.settings-header h2 {
+  color: #333;
+}
+
+.settings-section {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.settings-section h3 {
+  color: #333;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.day-selector {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.day-selector button {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  background: white;
+}
+
+.day-selector button.active {
+  background-color: #334155;
+  color: white;
+  border-color: #334155;
+}
+
+.staff-table {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.staff-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.staff-table th,
+.staff-table td {
+  padding: 0.75rem;
+  border: 1px solid #dee2e6;
+  text-align: center;
+}
+
+.staff-table th {
+  background-color: #f8f9fa;
+  position: sticky;
+  top: 0;
+}
+
+.staff-table input {
+  width: 80px;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.annual-hours-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.annual-item {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.annual-item .emp-name {
+  flex: 2;
+  font-weight: bold;
+}
+
+.annual-item .emp-tag {
+  flex: 1;
+  text-align: center;
+}
+
+.annual-item .emp-hours {
+  flex: 1;
+  text-align: right;
+  font-weight: 600;
+  color: #3b82f6;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.section-header h3 {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.recalc-btn {
+  padding: 0.4rem 0.8rem;
+  background-color: #475569;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.recalc-btn:hover {
+  background-color: #5a6d82;
+}
+
+.monthly-summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.monthly-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  gap: 1rem;
+}
+
+.monthly-name {
+  flex: 2;
+  font-weight: bold;
+}
+
+.monthly-tag {
+  flex: 1;
+  text-align: center;
+  color: #666;
+  font-size: 0.875rem;
+}
+
+.monthly-period {
+  flex: 1;
+  text-align: center;
+  color: #333;
+  font-weight: bold;
+}
+
+.monthly-hours {
+  flex: 1;
+  text-align: right;
+  font-weight: 600;
+  color: #3b82f6;
+}
+
+.monthly-days {
+  flex: 0.5;
+  text-align: right;
+  color: #666;
+}
+
+.no-data {
+  text-align: center;
+  padding: 2rem;
+  color: #999;
+}
+
+.data-management {
+  text-align: center;
+}
+
+.data-info {
+  color: #666;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+.archive-btn {
+  padding: 0.75rem 1.5rem;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.archive-btn:hover {
+  background-color: #c82333;
+}
+
+.archive-btn:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .settings-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .day-selector {
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+  .day-selector button {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+  }
+  .monthly-item {
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+  .annual-item {
+    flex-wrap: wrap;
+  }
+}
