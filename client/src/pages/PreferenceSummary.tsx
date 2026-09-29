@@ -1,5 +1,6 @@
 ﻿import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import QRCode from 'qrcode';
 import { preferenceApi, employeeApi } from '../services/api';
 import { generateDateRange, formatMonthDay, getDayName, isSaturday, isSunday } from '../utils/dateUtils';
 import { HOLIDAYS_2025_2026 } from '../utils/holidays';
@@ -7,6 +8,31 @@ import './PreferenceSummary.css';
 
 interface PreferenceSummaryProps {
   showQRCodes?: boolean;
+}
+
+function QRItem({ emp }: { emp: any }) {
+  const [dataUrl, setDataUrl] = useState('');
+  const url = window.location.origin + '/prefer/' + emp.id;
+
+  useEffect(() => {
+    QRCode.toDataURL(url, { width: 320, margin: 1 })
+      .then((d) => setDataUrl(d))
+      .catch(() => {});
+  }, [url]);
+
+  return (
+    <div className="ps-qr-item">
+      {dataUrl ? (
+        <img src={dataUrl} alt={emp.name + ' QR'} className="ps-qr-img" />
+      ) : (
+        <div className="ps-qr-img ps-qr-loading">生成中...</div>
+      )}
+      <div className="ps-qr-name">{emp.name}</div>
+      <div className="ps-qr-tag">{emp.tag}</div>
+      <div className="ps-qr-url"><input type="text" readOnly value={url} onClick={(e) => (e.target as HTMLInputElement).select()} /></div>
+      <a className="ps-qr-download" href={dataUrl || '#'} download={'QR_' + emp.name + '.png'}>PNGダウンロード</a>
+    </div>
+  );
 }
 
 function PreferenceSummary({ showQRCodes = false }: PreferenceSummaryProps) {
@@ -52,35 +78,24 @@ function PreferenceSummary({ showQRCodes = false }: PreferenceSummaryProps) {
     <div className="ps-container">
       <div className="ps-header">
         <button onClick={() => navigate('/')} className="back-btn">戻る</button>
-        <h2>シフト希望一覧</h2>
-        {period && <span className="ps-period">{formatMonthDay(period.start_date)} 〜 {formatMonthDay(period.end_date)}</span>}
+        <h2>{showQRCodes ? 'QRコード一覧' : 'シフト希望一覧'}</h2>
+        {!showQRCodes && period && <span className="ps-period">{formatMonthDay(period.start_date)} 〜 {formatMonthDay(period.end_date)}</span>}
       </div>
-      <div className="ps-info"><p>各日付に入れることのできる時間を表示しています（例: 17〜22）。日付は朝5時〜翌朝5時の1日です。</p></div>
+      {!showQRCodes && <div className="ps-info"><p>各日付に入れることのできる時間を表示しています（例: 17〜22）。日付は朝5時〜翌朝5時の1日です。</p></div>}
 
       {showQRCodes && (
         <div className="ps-qr-section">
-          <h3>従業員用 提出URL・QRコード</h3>
-          <p className="ps-qr-hint">各従業員にQRコードを渡してください。このURLは毎月使い回せます。</p>
+          <p className="ps-qr-hint">各従業員にQRコードを渡してください。このURLは毎月使い回せます。PNGダウンロードで画像を保存すれば、メールやLINEで配れます。</p>
           <div className="ps-qr-list">
-            {employees.map((emp) => {
-              const baseUrl = window.location.origin;
-              const url = baseUrl + '/prefer/' + emp.id;
-              const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + encodeURIComponent(url);
-              return (
-                <div key={emp.id} className="ps-qr-item">
-                  <img src={qrUrl} alt={emp.name + ' QR'} className="ps-qr-img" />
-                  <div className="ps-qr-name">{emp.name}</div>
-                  <div className="ps-qr-tag">{emp.tag}</div>
-                  <div className="ps-qr-url"><input type="text" readOnly value={url} onClick={(e) => (e.target as HTMLInputElement).select()} /></div>
-                </div>
-              );
-            })}
+            {employees.map((emp) => (
+              <QRItem key={emp.id} emp={emp} />
+            ))}
           </div>
         </div>
       )}
-
-      <div className="ps-table-container">
+      {!showQRCodes && (<div className="ps-table-container">
         <table className="ps-table">
+
           <thead>
             <tr>
               <th className="ps-name-header">氏名</th>
@@ -116,7 +131,7 @@ function PreferenceSummary({ showQRCodes = false }: PreferenceSummaryProps) {
             </tr>
           </tbody>
         </table>
-      </div>
+      </div>)}
     </div>
   );
 }
