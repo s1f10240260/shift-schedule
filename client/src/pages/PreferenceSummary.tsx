@@ -120,13 +120,13 @@ function PreferenceSummary({ showQRCodes = false }: PreferenceSummaryProps) {
                   if (hasTime) cls += ' yes';
                   else if (pref) cls += ' no';
                   else cls += ' unknown';
-                  const label = hasTime ? fmtT(pref.start_time) + '〜' + fmtT(pref.end_time) : '-';
+                  const label = hasTime ? fmtT(pref.start_time) + '-' + fmtT(pref.end_time) : '-';
                   return <td key={date} className={cls}>{label}</td>;
                 })}
               </tr>
             ))}
             <tr className="ps-total-row">
-              <td className="ps-name-cell">合計</td>
+              <td className="ps-name-cell">希望者数</td>
               {dates.map((date) => { const s = getSummaryForDate(date); const count = s ? s.count : 0; return <td key={date} className="ps-total-cell">{count > 0 ? count : '-'}</td>; })}
             </tr>
           </tbody>

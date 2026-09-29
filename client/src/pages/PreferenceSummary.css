@@ -154,6 +154,7 @@
   border: 1px solid #e2e8f0;
   padding: 2px 3px;
   text-align: center;
+  overflow: hidden;
 }
 
 .ps-name-header {
@@ -166,8 +167,8 @@
 }
 
 .ps-date-header {
-  min-width: 36px;
-  width: 36px;
+  min-width: 62px;
+  width: 62px;
   background-color: #f8f9fa;
   font-size: 0.6rem;
   line-height: 1.2;
@@ -198,7 +199,7 @@
 }
 
 .ps-cell {
-  font-size: 0.7rem;
+  font-size: 0.6rem;
   white-space: nowrap;
 }
 
