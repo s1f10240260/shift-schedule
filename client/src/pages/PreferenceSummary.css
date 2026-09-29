@@ -216,17 +216,6 @@
   color: #ccc;
 }
 
-.ps-total-row {
-  background-color: #f8f9fa;
-  font-weight: bold;
-}
-
-.ps-total-cell {
-  color: #3b82f6;
-  font-weight: bold;
-  font-size: 0.7rem;
-}
-
 @media (max-width: 768px) {
   .ps-header {
     flex-wrap: wrap;

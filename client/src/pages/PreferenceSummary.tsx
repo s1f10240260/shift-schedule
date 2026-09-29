@@ -39,7 +39,6 @@ function PreferenceSummary({ showQRCodes = false }: PreferenceSummaryProps) {
   const { periodId } = useParams();
   const navigate = useNavigate();
   const [employees, setEmployees] = useState<any[]>([]);
-  const [summary, setSummary] = useState<any[]>([]);
   const [allPrefs, setAllPrefs] = useState<any[]>([]);
   const [dates, setDates] = useState<string[]>([]);
   const [period, setPeriod] = useState<any>(null);
@@ -49,13 +48,11 @@ function PreferenceSummary({ showQRCodes = false }: PreferenceSummaryProps) {
 
   const loadData = async () => {
     try {
-      const [empRes, summaryRes, prefsRes] = await Promise.all([
+      const [empRes, prefsRes] = await Promise.all([
         employeeApi.getAll(),
-        preferenceApi.getSummary(Number(periodId)),
         preferenceApi.getAllPrefs(Number(periodId))
       ]);
       setEmployees(empRes.data);
-      setSummary(summaryRes.data);
       setAllPrefs(prefsRes.data);
       if (empRes.data.length > 0) {
         const periodsRes = await (await import('../services/api')).shiftApi.getPeriods();
@@ -66,7 +63,6 @@ function PreferenceSummary({ showQRCodes = false }: PreferenceSummaryProps) {
     finally { setLoading(false); }
   };
 
-  const getSummaryForDate = (date: string) => summary.find((s) => s.date === date);
   const isHoliday = (date: string): boolean => HOLIDAYS_2025_2026.some((h) => h.date === date);
   const getPref = (employeeId: number, date: string) =>
     allPrefs.find((p) => p.employee_id === employeeId && p.date === date);
@@ -125,10 +121,6 @@ function PreferenceSummary({ showQRCodes = false }: PreferenceSummaryProps) {
                 })}
               </tr>
             ))}
-            <tr className="ps-total-row">
-              <td className="ps-name-cell">希望者数</td>
-              {dates.map((date) => { const s = getSummaryForDate(date); const count = s ? s.count : 0; return <td key={date} className="ps-total-cell">{count > 0 ? count : '-'}</td>; })}
-            </tr>
           </tbody>
         </table>
       </div>)}
