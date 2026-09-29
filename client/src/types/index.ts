@@ -11,6 +11,7 @@ export interface Employee {
   page_number: number;
   sort_order: number;
   annual_hours: number;
+  email?: string;
 }
 
 export interface ShiftPeriod {

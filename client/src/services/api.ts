@@ -25,7 +25,7 @@ export const authApi = {
 export const employeeApi = {
   getAll: () => api.get('/employees'),
 
-  create: (data: { name: string; tag: string; page_number: number }) =>
+  create: (data: { name: string; tag: string; page_number: number; email?: string }) =>
     api.post('/employees', data),
 
   update: (id: number, data: any) =>
@@ -106,6 +106,48 @@ export const settingsApi = {
 
   getHolidays: (year?: number) =>
     api.get("/settings/holidays" + (year ? "/" + year : ''))
+};
+
+export const emailApi = {
+  getSettings: () => api.get('/email/settings'),
+
+  saveSettings: (data: {
+    smtp_host: string;
+    smtp_port: number;
+    smtp_user: string;
+    smtp_pass?: string;
+    from_name?: string;
+    from_email?: string;
+  }) => api.post('/email/settings', data),
+
+  sendTest: (to: string) => api.post('/email/test', { to }),
+
+  getShortages: (periodId: number) => api.get("/email/shortages/" + periodId),
+
+  preview: (data: {
+    period_id: number;
+    subject?: string;
+    message?: string;
+    include_shortages?: boolean;
+  }) => api.post('/email/preview', data),
+
+  sendBulk: (data: {
+    period_id: number;
+    tags?: string[];
+    employee_ids?: number[];
+    subject: string;
+    message?: string;
+    body?: string;
+    include_shortages?: boolean;
+    send_mode?: 'individual' | 'bcc';
+  }) => api.post('/email/send-bulk', data),
+
+  getTemplates: () => api.get('/email/templates'),
+
+  saveTemplate: (data: { id?: number; name: string; subject?: string; body?: string }) =>
+    api.post('/email/templates', data),
+
+  deleteTemplate: (id: number) => api.delete("/email/templates/" + id)
 };
 
 export default api;

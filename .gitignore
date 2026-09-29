@@ -11,6 +11,9 @@ client/.vite/
 dist/
 client/dist/
 
+# Debug output / screenshots
+output/
+
 # Database
 server/data/
 

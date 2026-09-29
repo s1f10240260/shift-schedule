@@ -156,8 +156,40 @@ export async function initDatabase(): Promise<void> {
     )
   `);
 
+  database.run(`
+    CREATE TABLE IF NOT EXISTS email_settings (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      store_id INTEGER NOT NULL UNIQUE,
+      smtp_host TEXT DEFAULT '',
+      smtp_port INTEGER DEFAULT 587,
+      smtp_user TEXT DEFAULT '',
+      smtp_pass TEXT DEFAULT '',
+      from_name TEXT DEFAULT '',
+      from_email TEXT DEFAULT '',
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (store_id) REFERENCES stores(id) ON DELETE CASCADE
+    )
+  `);
+
+  database.run(`
+    CREATE TABLE IF NOT EXISTS email_templates (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      store_id INTEGER NOT NULL,
+      name TEXT NOT NULL,
+      subject TEXT NOT NULL DEFAULT '',
+      body TEXT NOT NULL DEFAULT '',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (store_id) REFERENCES stores(id) ON DELETE CASCADE
+    )
+  `);
+
   try {
     database.run("ALTER TABLE shift_periods ADD COLUMN deadline TEXT");
+  } catch (e) { }
+
+  try {
+    database.run("ALTER TABLE employees ADD COLUMN email TEXT DEFAULT ''");
   } catch (e) { }
 
   insertDefaultHolidays(database);

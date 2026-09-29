@@ -251,11 +251,13 @@ router.get('/public-periods/:employeeId', async (req: any, res: Response) => {
     prefStmt.free();
 
     const deadline = row.deadline as string | null;
+    const startDate = row.start_date as string;
     let isEditable = true;
     if (submitted && deadline) {
       isEditable = today <= deadline;
     } else if (submitted && !deadline) {
-      isEditable = false;
+      // match public-submit: can resubmit until period starts
+      isEditable = today <= startDate;
     }
 
     periods.push({ ...row, submitted, editable: isEditable });

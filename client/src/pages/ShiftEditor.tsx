@@ -35,10 +35,8 @@ function calcHours(startStr: string, endStr: string): number {
 
 function formatHours(hours: number): string {
   if (hours === 0) return '';
-  const h = Math.floor(hours);
-  const m = Math.round((hours - h) * 60);
-  if (m === 0) return String(h);
-  return String(h) + "." + String(m);
+  const rounded = Math.round(hours * 10) / 10;
+  return String(rounded);
 }
 
 function exportCSV(dates: string[], employees: any[], shifts: ShiftData) {
@@ -282,6 +280,13 @@ function ShiftEditor() {
         <div className="header-actions">
           <button onClick={() => navigate("/preferences/" + periodId)} className="pref-btn">
             希望一覧
+          </button>
+          <button
+            onClick={() => navigate("/shortage-email/" + periodId)}
+            className="pref-btn"
+            title="欠勤連絡を受けたら代打募集メールを送る"
+          >
+            欠員補充メール
           </button>
           <button onClick={() => exportCSV(dates, displayEmployees, shifts)} className="export-btn">
             CSV出力

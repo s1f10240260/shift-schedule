@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { settingsApi, shiftApi } from '../services/api';
+import { settingsApi, shiftApi, emailApi } from '../services/api';
 import { DAY_NAMES, HOURS } from '../types';
 import './Settings.css';
 
@@ -11,6 +11,17 @@ function Settings() {
   const [selectedDay, setSelectedDay] = useState(0);
   const [loading, setLoading] = useState(true);
   const [archiving, setArchiving] = useState(false);
+  const [smtp, setSmtp] = useState({
+    smtp_host: '',
+    smtp_port: 587,
+    smtp_user: '',
+    smtp_pass: '',
+    from_name: '',
+    from_email: ''
+  });
+  const [smtpSaving, setSmtpSaving] = useState(false);
+  const [testTo, setTestTo] = useState('');
+  const [smtpMsg, setSmtpMsg] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -19,18 +30,56 @@ function Settings() {
 
   const loadData = async () => {
     try {
-      const [staffRes, hoursRes, monthlyRes] = await Promise.all([
+      const [staffRes, hoursRes, monthlyRes, emailRes] = await Promise.all([
         settingsApi.getRequiredStaff(),
         shiftApi.getAnnualHours(),
-        shiftApi.getMonthlySummary()
+        shiftApi.getMonthlySummary(),
+        emailApi.getSettings().catch(() => ({ data: null }))
       ]);
       setRequiredStaff(staffRes.data);
       setAnnualHours(hoursRes.data);
       setMonthlySummary(monthlyRes.data);
+      if (emailRes.data) {
+        setSmtp({
+          smtp_host: emailRes.data.smtp_host || '',
+          smtp_port: emailRes.data.smtp_port || 587,
+          smtp_user: emailRes.data.smtp_user || '',
+          smtp_pass: emailRes.data.smtp_pass || '',
+          from_name: emailRes.data.from_name || '',
+          from_email: emailRes.data.from_email || ''
+        });
+      }
     } catch (error) {
       console.error('Failed to load settings:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const saveSmtp = async () => {
+    setSmtpSaving(true);
+    setSmtpMsg('');
+    try {
+      await emailApi.saveSettings(smtp);
+      setSmtpMsg('メール設定を保存しました');
+    } catch (e: any) {
+      setSmtpMsg(e?.response?.data?.error || '保存に失敗しました');
+    } finally {
+      setSmtpSaving(false);
+    }
+  };
+
+  const sendTestMail = async () => {
+    if (!testTo.trim()) {
+      setSmtpMsg('テスト送信先を入力してください');
+      return;
+    }
+    setSmtpMsg('');
+    try {
+      await emailApi.sendTest(testTo.trim());
+      setSmtpMsg('テストメールを送信しました');
+    } catch (e: any) {
+      setSmtpMsg(e?.response?.data?.error || 'テスト送信に失敗しました');
     }
   };
 
@@ -135,6 +184,82 @@ function Settings() {
               ))}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      <div className="settings-section">
+        <h3>メール送信設定（SMTP）</h3>
+        <p className="data-info">
+          欠員補充メールの一斉送信に使用します。Gmailの場合は「アプリパスワード」をパスワード欄に入力してください（無料）。
+        </p>
+        <div className="smtp-form">
+          <label>
+            SMTPサーバー
+            <input
+              type="text"
+              value={smtp.smtp_host}
+              onChange={(e) => setSmtp({ ...smtp, smtp_host: e.target.value })}
+              placeholder="smtp.gmail.com"
+            />
+          </label>
+          <label>
+            ポート
+            <input
+              type="number"
+              value={smtp.smtp_port}
+              onChange={(e) => setSmtp({ ...smtp, smtp_port: Number(e.target.value) || 587 })}
+              placeholder="587"
+            />
+          </label>
+          <label>
+            ユーザー名
+            <input
+              type="text"
+              value={smtp.smtp_user}
+              onChange={(e) => setSmtp({ ...smtp, smtp_user: e.target.value })}
+              placeholder="example@gmail.com"
+            />
+          </label>
+          <label>
+            パスワード / アプリパスワード
+            <input
+              type="password"
+              value={smtp.smtp_pass}
+              onChange={(e) => setSmtp({ ...smtp, smtp_pass: e.target.value })}
+              placeholder="••••••••"
+            />
+          </label>
+          <label>
+            送信者名
+            <input
+              type="text"
+              value={smtp.from_name}
+              onChange={(e) => setSmtp({ ...smtp, from_name: e.target.value })}
+              placeholder="南京亭 〇〇店"
+            />
+          </label>
+          <label>
+            送信元メール（任意）
+            <input
+              type="email"
+              value={smtp.from_email}
+              onChange={(e) => setSmtp({ ...smtp, from_email: e.target.value })}
+              placeholder="未指定ならユーザー名と同じ"
+            />
+          </label>
+          <div className="smtp-actions">
+            <button onClick={saveSmtp} disabled={smtpSaving}>
+              {smtpSaving ? '保存中...' : 'メール設定を保存'}
+            </button>
+            <input
+              type="email"
+              value={testTo}
+              onChange={(e) => setTestTo(e.target.value)}
+              placeholder="テスト送信先"
+            />
+            <button onClick={sendTestMail}>テスト送信</button>
+          </div>
+          {smtpMsg && <p className="smtp-msg">{smtpMsg}</p>}
         </div>
       </div>
 

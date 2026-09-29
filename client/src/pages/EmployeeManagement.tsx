@@ -10,10 +10,12 @@ function EmployeeManagement() {
   const [newName, setNewName] = useState('');
   const [newTag, setNewTag] = useState<EmployeeTag>('バイト');
   const [newPage, setNewPage] = useState(1);
+  const [newEmail, setNewEmail] = useState('');
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editName, setEditName] = useState('');
   const [editTag, setEditTag] = useState<EmployeeTag>('バイト');
   const [editPage, setEditPage] = useState(1);
+  const [editEmail, setEditEmail] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -39,9 +41,11 @@ function EmployeeManagement() {
       await employeeApi.create({
         name: newName.trim(),
         tag: newTag,
-        page_number: newPage
+        page_number: newPage,
+        email: newEmail.trim()
       });
       setNewName('');
+      setNewEmail('');
       loadEmployees();
     } catch (error) {
       console.error('Failed to add employee:', error);
@@ -53,6 +57,7 @@ function EmployeeManagement() {
     setEditName(employee.name);
     setEditTag(employee.tag);
     setEditPage(employee.page_number);
+    setEditEmail(employee.email || '');
   };
 
   const saveEdit = async () => {
@@ -62,7 +67,8 @@ function EmployeeManagement() {
       await employeeApi.update(editingId, {
         name: editName.trim(),
         tag: editTag,
-        page_number: editPage
+        page_number: editPage,
+        email: editEmail.trim()
       });
       setEditingId(null);
       loadEmployees();
@@ -128,6 +134,12 @@ function EmployeeManagement() {
               <option key={p} value={p}>ページ {p}</option>
             ))}
           </select>
+          <input
+            type="email"
+            value={newEmail}
+            onChange={(e) => setNewEmail(e.target.value)}
+            placeholder="メールアドレス（任意）"
+          />
           <button type="submit">追加</button>
         </div>
       </form>
@@ -161,6 +173,12 @@ function EmployeeManagement() {
                             <option key={p} value={p}>ページ {p}</option>
                           ))}
                         </select>
+                        <input
+                          type="email"
+                          value={editEmail}
+                          onChange={(e) => setEditEmail(e.target.value)}
+                          placeholder="メールアドレス"
+                        />
                         <button onClick={saveEdit}>保存</button>
                         <button onClick={cancelEdit}>キャンセル</button>
                       </div>
@@ -168,6 +186,7 @@ function EmployeeManagement() {
                       <>
                         <span className="emp-name">{employee.name}</span>
                         <span className="emp-tag">{employee.tag}</span>
+                        <span className="emp-email">{employee.email || 'メール未登録'}</span>
                         <div className="emp-actions">
                           <button onClick={() => startEdit(employee)}>編集</button>
                           <button onClick={() => deleteEmployee(employee.id)} className="delete-btn">削除</button>

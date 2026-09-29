@@ -17,7 +17,7 @@ router.get('/', authenticateToken, async (req: AuthRequest, res: Response) => {
 });
 
 router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
-  const { name, tag, page_number } = req.body;
+  const { name, tag, page_number, email } = req.body;
   const db = await getDb();
 
   const orderStmt = db.prepare("SELECT MAX(sort_order) as max_order FROM employees WHERE store_id = ? AND page_number = ?");
@@ -29,22 +29,24 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
   }
   orderStmt.free();
 
-  db.run("INSERT INTO employees (store_id, name, tag, page_number, sort_order) VALUES (?, ?, ?, ?, ?)",
-    [req.storeId!, name, tag || 'バイト', page_number || 1, sortOrder]);
+  db.run("INSERT INTO employees (store_id, name, tag, page_number, sort_order, email) VALUES (?, ?, ?, ?, ?, ?)",
+    [req.storeId!, name, tag || 'バイト', page_number || 1, sortOrder, email || '']);
   const result = db.exec("SELECT last_insert_rowid() as id");
   const employeeId = result[0]?.values[0][0] as number;
   saveDatabase();
 
-  res.json({ id: employeeId, name, tag: tag || 'バイト', page_number: page_number || 1, sort_order: sortOrder });
+  res.json({ id: employeeId, name, tag: tag || 'バイト', page_number: page_number || 1, sort_order: sortOrder, email: email || '' });
 });
 
 router.put('/:id', authenticateToken, async (req: AuthRequest, res: Response) => {
   const { id } = req.params;
-  const { name, tag, page_number, sort_order } = req.body;
+  const { name, tag, page_number, sort_order, email } = req.body;
   const db = await getDb();
 
-  db.run("UPDATE employees SET name = COALESCE(?, name), tag = COALESCE(?, tag), page_number = COALESCE(?, page_number), sort_order = COALESCE(?, sort_order) WHERE id = ? AND store_id = ?",
-    [name || null, tag || null, page_number || null, sort_order || null, id, req.storeId!]);
+  db.run(
+    "UPDATE employees SET name = COALESCE(?, name), tag = COALESCE(?, tag), page_number = COALESCE(?, page_number), sort_order = COALESCE(?, sort_order), email = COALESCE(?, email) WHERE id = ? AND store_id = ?",
+    [name || null, tag || null, page_number || null, sort_order || null, email !== undefined ? email : null, id, req.storeId!]
+  );
   saveDatabase();
 
   res.json({ success: true });

@@ -33,7 +33,10 @@ function Dashboard() {
     const next = getCurrentPeriod();
     const startDate = new Date(next.start);
     const deadline = new Date(startDate.getFullYear(), startDate.getMonth() - 1, 27);
-    const deadlineStr = deadline.toISOString().slice(0, 10);
+    const y = deadline.getFullYear();
+    const m = String(deadline.getMonth() + 1).padStart(2, '0');
+    const d = String(deadline.getDate()).padStart(2, '0');
+    const deadlineStr = y + '-' + m + '-' + d;
 
     try {
       const response = await shiftApi.createPeriod(next.start, next.end, deadlineStr);

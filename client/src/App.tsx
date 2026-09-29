@@ -7,6 +7,7 @@ import EmployeeManagement from './pages/EmployeeManagement';
 import Settings from './pages/Settings';
 import PreferenceForm from './pages/PreferenceForm';
 import PreferenceSummary from './pages/PreferenceSummary';
+import ShortageEmail from './pages/ShortageEmail';
 import './App.css';
 
 function AppContent() {
@@ -66,6 +67,7 @@ function AppContent() {
             <Route path="/prefer/:employeeId" element={<PreferenceForm />} />
             <Route path="/preferences/:periodId" element={<PreferenceSummary />} />
             <Route path="/qrcodes/:periodId" element={<PreferenceSummary showQRCodes={true} />} />
+            <Route path="/shortage-email/:periodId" element={<ShortageEmail />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
