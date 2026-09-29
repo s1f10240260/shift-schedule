@@ -203,25 +203,46 @@
   font-size: 1.1rem;
 }
 
-.pf-actions {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.pf-actions button {
-  flex: 1;
-  padding: 0.5rem;
-  background-color: #f0f0f0;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  cursor: pointer;
+.pf-hint {
   font-size: 0.8rem;
-  color: #334155;
+  color: #666;
+  background: #f8f9fa;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
 }
 
-.pf-actions button:hover {
-  background-color: #e2e8f0;
+.pf-day-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 1.5rem;
+}
+
+.pf-day-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.6rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.pf-day-row.saturday {
+  border-color: #bfdbfe;
+  background: #f8fbff;
+}
+
+.pf-day-row.sunday {
+  border-color: #fecaca;
+  background: #fffbfb;
+}
+
+.pf-day-row.filled {
+  border-color: #94a3b8;
+  background-color: #f0f4f8;
 }
 
 .pf-week-nav {
@@ -255,72 +276,58 @@
   font-weight: 500;
 }
 
-.pf-calendar {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
-  margin-bottom: 1.5rem;
+.pf-day-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 3rem;
 }
 
-.pf-day {
-  padding: 0.5rem 0.25rem;
-  border: 2px solid #e2e8f0;
-  border-radius: 6px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.15s;
-  user-select: none;
-}
-
-.pf-day:hover {
-  border-color: #94a3b8;
-}
-
-.pf-day.available {
-  background-color: #f0f4f8;
-  border-color: #94a3b8;
-}
-
-.pf-day.saturday {
-  color: #2563eb;
-}
-
-.pf-day.saturday.available {
-  background-color: #eff6ff;
-  border-color: #3b82f6;
-}
-
-.pf-day.sunday,
-.pf-day.sunday.available {
-  color: #dc2626;
-}
-
-.pf-day.sunday.available {
-  background-color: #fef2f2;
-  border-color: #ef4444;
-}
-
-.pf-date-num {
-  font-size: 0.85rem;
+.pf-day-md {
+  font-size: 0.9rem;
   font-weight: 600;
 }
 
-.pf-date-day {
-  font-size: 0.65rem;
+.pf-day-row.saturday .pf-day-label {
+  color: #2563eb;
+}
+
+.pf-day-row.sunday .pf-day-label {
+  color: #dc2626;
+}
+
+.pf-day-name {
+  font-size: 0.6rem;
   color: #999;
 }
 
-.pf-check {
-  font-size: 0.9rem;
-  margin-top: 2px;
+.pf-day-times {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
 }
 
-.pf-day.available .pf-check {
-  color: #3b82f6;
+.pf-day-times select {
+  padding: 0.45rem 0.3rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  background: white;
+  min-width: 4.5rem;
 }
 
-.pf-day:not(.available) .pf-check {
-  color: #ccc;
+.pf-tilde {
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+.pf-day-note {
+  flex: 1;
+  min-width: 4rem;
+  padding: 0.45rem 0.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.85rem;
 }
 
 .pf-submit {
@@ -363,25 +370,12 @@
   .pf-header h1 {
     font-size: 1.2rem;
   }
-  .pf-calendar {
-    gap: 4px;
+  .pf-day-row {
+    flex-wrap: wrap;
   }
-  .pf-day {
-    padding: 0.4rem 0.15rem;
-    border-width: 1px;
-  }
-  .pf-date-num {
-    font-size: 0.8rem;
-  }
-  .pf-date-day {
-    font-size: 0.55rem;
-  }
-  .pf-check {
-    font-size: 0.8rem;
-  }
-  .pf-actions button {
-    padding: 0.4rem;
-    font-size: 0.75rem;
+  .pf-day-note {
+    width: 100%;
+    flex: none;
   }
   .pf-week-nav span {
     font-size: 0.7rem;

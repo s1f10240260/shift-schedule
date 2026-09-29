@@ -22,6 +22,10 @@ export const authApi = {
     api.post('/auth/register', { name, password })
 };
 
+export const healthApi = {
+  get: () => api.get('/health')
+};
+
 export const employeeApi = {
   getAll: () => api.get('/employees'),
 

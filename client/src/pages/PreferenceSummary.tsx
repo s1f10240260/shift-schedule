@@ -42,11 +42,9 @@ function PreferenceSummary({ showQRCodes = false }: PreferenceSummaryProps) {
 
   const getSummaryForDate = (date: string) => summary.find((s) => s.date === date);
   const isHoliday = (date: string): boolean => HOLIDAYS_2025_2026.some((h) => h.date === date);
-  const isEmployeeAvailable = (employeeId: number, date: string): boolean | null => {
-    const pref = allPrefs.find((p) => p.employee_id === employeeId && p.date === date);
-    if (!pref) return null;
-    return pref.available === 1;
-  };
+  const getPref = (employeeId: number, date: string) =>
+    allPrefs.find((p) => p.employee_id === employeeId && p.date === date);
+  const fmtT = (t: string) => (t ? t.replace(/^0/, '').replace(/:00$/, '') : t);
 
   if (loading) return <div className="loading">読み込み中...</div>;
 
@@ -57,7 +55,7 @@ function PreferenceSummary({ showQRCodes = false }: PreferenceSummaryProps) {
         <h2>シフト希望一覧</h2>
         {period && <span className="ps-period">{formatMonthDay(period.start_date)} 〜 {formatMonthDay(period.end_date)}</span>}
       </div>
-      <div className="ps-info"><p>各日付に出勤可能な従業員数を表示しています。</p></div>
+      <div className="ps-info"><p>各日付に入れることのできる時間を表示しています（例: 17〜22）。日付は朝5時〜翌朝5時の1日です。</p></div>
 
       {showQRCodes && (
         <div className="ps-qr-section">
@@ -101,12 +99,14 @@ function PreferenceSummary({ showQRCodes = false }: PreferenceSummaryProps) {
               <tr key={emp.id}>
                 <td className="ps-name-cell">{emp.name}</td>
                 {dates.map((date) => {
-                  const available = isEmployeeAvailable(emp.id, date);
+                  const pref = getPref(emp.id, date);
+                  const hasTime = !!(pref && pref.start_time && pref.end_time);
                   let cls = 'ps-cell';
-                  if (available === true) cls += ' yes';
-                  else if (available === false) cls += ' no';
+                  if (hasTime) cls += ' yes';
+                  else if (pref) cls += ' no';
                   else cls += ' unknown';
-                  return <td key={date} className={cls}>{available === true ? '◯' : available === false ? '✕' : '-'}</td>;
+                  const label = hasTime ? fmtT(pref.start_time) + '〜' + fmtT(pref.end_time) : '-';
+                  return <td key={date} className={cls}>{label}</td>;
                 })}
               </tr>
             ))}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { shiftApi, employeeApi } from '../services/api';
+import { shiftApi, employeeApi, healthApi } from '../services/api';
 import { getCurrentPeriod, formatMonthDay } from '../utils/dateUtils';
 import './Dashboard.css';
 
@@ -8,10 +8,16 @@ function Dashboard() {
   const [periods, setPeriods] = useState<any[]>([]);
   const [employeeCount, setEmployeeCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [backupWarning, setBackupWarning] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     loadData();
+    healthApi.get().then((res) => {
+      if (res.data && res.data.ephemeralHost && !res.data.remotePersistence) {
+        setBackupWarning(true);
+      }
+    }).catch(() => {});
   }, []);
 
   const loadData = async () => {
@@ -56,6 +62,9 @@ function Dashboard() {
 
   return (
     <div className="dashboard">
+      {backupWarning && (
+        <div className="backup-warning">⚠️ データの自動バックアップが未設定です。サーバーの再起動時にデータが消える可能性があります。</div>
+      )}
       <div className="dashboard-header">
         <h2>シフト表一覧</h2>
         <button onClick={createNewPeriod} className="create-btn">

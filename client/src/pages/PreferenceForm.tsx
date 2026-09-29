@@ -5,25 +5,34 @@ import { generateDateRange, formatMonthDay, getDayName } from '../utils/dateUtil
 import { HOLIDAYS_2025_2026 } from '../utils/holidays';
 import './PreferenceForm.css';
 
+interface PrefEntry {
+  start: string;
+  end: string;
+  note: string;
+}
+
+const TIME_OPTIONS: { value: string; label: string }[] = [];
+for (let h = 0; h < 24; h++) {
+  for (const mm of ['00', '30']) {
+    const value = String(h).padStart(2, '0') + ':' + mm;
+    const label = h + ':' + mm + (h < 5 ? '（翌）' : '');
+    TIME_OPTIONS.push({ value, label });
+  }
+}
+
 function PreferenceForm() {
   const { employeeId } = useParams();
   const [employee, setEmployee] = useState<any>(null);
   const [periods, setPeriods] = useState<any[]>([]);
   const [selectedPeriod, setSelectedPeriod] = useState<any>(null);
   const [dates, setDates] = useState<string[]>([]);
-  const [weekDates, setWeekDates] = useState<string[]>([]);
-  const [preferences, setPreferences] = useState<{ [date: string]: boolean }>({});
+  const [preferences, setPreferences] = useState<{ [date: string]: PrefEntry }>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [weekOffset, setWeekOffset] = useState(0);
 
   useEffect(() => { loadEmployeeData(); }, [employeeId]);
   useEffect(() => { if (selectedPeriod) loadPeriodData(); }, [selectedPeriod]);
-  useEffect(() => {
-    const startIdx = weekOffset * 7;
-    setWeekDates(dates.slice(startIdx, startIdx + 7));
-  }, [weekOffset, dates]);
 
   const loadEmployeeData = async () => {
     try {
@@ -42,44 +51,37 @@ function PreferenceForm() {
       const res = await preferenceApi.getPublicData(Number(employeeId), selectedPeriod.id);
       const allDates = generateDateRange(selectedPeriod.start_date, selectedPeriod.end_date);
       setDates(allDates);
-      setWeekOffset(0);
-      const prefMap: { [date: string]: boolean } = {};
-      res.data.preferences.forEach((p: any) => { prefMap[p.date] = p.available === 1; });
+      const prefMap: { [date: string]: PrefEntry } = {};
+      res.data.preferences.forEach((p: any) => {
+        prefMap[p.date] = { start: p.start_time || '', end: p.end_time || '', note: p.note || '' };
+      });
       setPreferences(prefMap);
       setSaved(false);
     } catch (error) { console.error('Failed to load period data:', error); }
   };
 
-  const toggleDate = (date: string) => {
-    setPreferences((prev) => ({ ...prev, [date]: !prev[date] }));
-    setSaved(false);
-  };
-
-  const setAllWeekdays = () => {
-    const newPrefs: { [date: string]: boolean } = {};
-    dates.forEach((date) => { const d = new Date(date); newPrefs[date] = d.getDay() >= 1 && d.getDay() <= 5; });
-    setPreferences(newPrefs);
-    setSaved(false);
-  };
-
-  const setAllDates = () => {
-    const newPrefs: { [date: string]: boolean } = {};
-    dates.forEach((date) => { newPrefs[date] = true; });
-    setPreferences(newPrefs);
-    setSaved(false);
-  };
-
-  const clearAll = () => {
-    const newPrefs: { [date: string]: boolean } = {};
-    dates.forEach((date) => { newPrefs[date] = false; });
-    setPreferences(newPrefs);
+  const updatePref = (date: string, field: 'start' | 'end' | 'note', value: string) => {
+    setPreferences((prev) => ({
+      ...prev,
+      [date]: { ...(prev[date] || { start: '', end: '', note: '' }), [field]: value }
+    }));
     setSaved(false);
   };
 
   const handleSave = async () => {
+    for (const date of dates) {
+      const p = preferences[date];
+      if (p && ((p.start && !p.end) || (!p.start && p.end))) {
+        alert(formatMonthDay(date) + ' の開始時刻と終了時刻の両方を入力してください');
+        return;
+      }
+    }
     setSaving(true);
     try {
-      const dateArray = dates.map((date) => ({ date, available: preferences[date] ? 1 : 0, note: '' }));
+      const dateArray = dates.map((date) => {
+        const p = preferences[date] || { start: '', end: '', note: '' };
+        return { date, start_time: p.start, end_time: p.end, note: p.note };
+      });
       await preferenceApi.publicSubmit(Number(employeeId), selectedPeriod.id, dateArray);
       setSaved(true);
       loadEmployeeData();
@@ -92,8 +94,7 @@ function PreferenceForm() {
   if (loading) return <div className="pf-loading">読み込み中...</div>;
   if (!employee) return <div className="pf-loading">従業員が見つかりません</div>;
 
-  const availableCount = dates.length > 0 ? Object.values(preferences).filter(Boolean).length : 0;
-  const totalWeeks = Math.ceil(dates.length / 7);
+  const filledCount = dates.filter((date) => { const p = preferences[date]; return !!(p && p.start && p.end); }).length;
 
   if (!selectedPeriod) {
     return (
@@ -144,38 +145,40 @@ function PreferenceForm() {
         <p className="pf-period">{formatMonthDay(selectedPeriod.start_date)} 〜 {formatMonthDay(selectedPeriod.end_date)}</p>
         <span className="pf-tag">{employee.tag}</span>
       </div>
-      <div className="pf-summary"><span>出勤可能日: <strong>{availableCount}</strong> / {dates.length}日</span></div>
+      <div className="pf-summary"><span>入力済み: <strong>{filledCount}</strong> / {dates.length}日</span></div>
       {isEditable ? (
         <>
-          <div className="pf-actions">
-            <button onClick={setAllWeekdays}>平日のみ</button>
-            <button onClick={setAllDates}>全日</button>
-            <button onClick={clearAll}>クリア</button>
-          </div>
-          {totalWeeks > 1 && (
-            <div className="pf-week-nav">
-              <button onClick={() => setWeekOffset(Math.max(0, weekOffset - 1))} disabled={weekOffset === 0}>← 前週</button>
-              <span>{formatMonthDay(weekDates[0])} 〜 {formatMonthDay(weekDates[weekDates.length - 1])}</span>
-              <button onClick={() => setWeekOffset(Math.min(totalWeeks - 1, weekOffset + 1))} disabled={weekOffset >= totalWeeks - 1}>次週 →</button>
-            </div>
-          )}
-          <div className="pf-calendar">
-        {weekDates.map((date) => {
+          <div className="pf-hint">1日は朝5時〜翌朝5時です。夜勤はそのまま翌朝の時刻を入れてください（例: 22:00〜5:00）</div>
+          <div className="pf-day-list">
+        {dates.map((date) => {
           const d = new Date(date);
           const day = d.getDay();
           const isSat = day === 6;
           const isSun = day === 0;
           const isHol = isHoliday(date);
-          const available = preferences[date] !== false;
-          let dayClass = 'pf-day';
+          const pref = preferences[date] || { start: '', end: '', note: '' };
+          let dayClass = 'pf-day-row';
           if (isSat) dayClass += ' saturday';
           if (isSun || isHol) dayClass += ' sunday';
-          if (available) dayClass += ' available';
+          if (pref.start && pref.end) dayClass += ' filled';
           return (
-            <div key={date} className={dayClass} onClick={() => toggleDate(date)}>
-              <div className="pf-date-num">{d.getMonth() + 1}/{d.getDate()}</div>
-              <div className="pf-date-day">{getDayName(date)}</div>
-              <div className="pf-check">{available ? '◯' : '✕'}</div>
+            <div key={date} className={dayClass}>
+              <div className="pf-day-label">
+                <span className="pf-day-md">{d.getMonth() + 1}/{d.getDate()}</span>
+                <span className="pf-day-name">{getDayName(date)}</span>
+              </div>
+              <div className="pf-day-times">
+                <select value={pref.start} onChange={(e) => updatePref(date, 'start', e.target.value)}>
+                  <option value="">開始</option>
+                  {TIME_OPTIONS.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+                </select>
+                <span className="pf-tilde">〜</span>
+                <select value={pref.end} onChange={(e) => updatePref(date, 'end', e.target.value)}>
+                  <option value="">終了</option>
+                  {TIME_OPTIONS.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+                </select>
+              </div>
+              <input type="text" className="pf-day-note" value={pref.note} onChange={(e) => updatePref(date, 'note', e.target.value)} placeholder="メモ" />
             </div>
           );
         })}

@@ -68,10 +68,12 @@ router.post('/save', authenticateToken, async (req: AuthRequest, res: Response) 
   db.run("DELETE FROM shift_preferences WHERE employee_id = ? AND period_id = ?", [employee_id, period_id]);
 
   const stmt = db.prepare(
-    "INSERT INTO shift_preferences (employee_id, period_id, date, available, note) VALUES (?, ?, ?, ?, ?)"
+    "INSERT INTO shift_preferences (employee_id, period_id, date, available, start_time, end_time, note) VALUES (?, ?, ?, ?, ?, ?, ?)"
   );
-  dates.forEach((item: { date: string; available: number; note?: string }) => {
-    stmt.bind([employee_id, period_id, item.date, item.available, item.note || '']);
+  dates.forEach((item: { date: string; start_time?: string; end_time?: string; note?: string }) => {
+    const start = item.start_time || '';
+    const end = item.end_time || '';
+    stmt.bind([employee_id, period_id, item.date, start && end ? 1 : 0, start, end, item.note || '']);
     stmt.step();
     stmt.reset();
   });
@@ -136,10 +138,12 @@ router.post('/public-submit', async (req: any, res: Response) => {
   db.run("DELETE FROM shift_preferences WHERE employee_id = ? AND period_id = ?", [employee_id, period_id]);
 
   const stmt = db.prepare(
-    "INSERT INTO shift_preferences (employee_id, period_id, date, available, note) VALUES (?, ?, ?, ?, ?)"
+    "INSERT INTO shift_preferences (employee_id, period_id, date, available, start_time, end_time, note) VALUES (?, ?, ?, ?, ?, ?, ?)"
   );
-  dates.forEach((item: { date: string; available: number; note?: string }) => {
-    stmt.bind([employee_id, period_id, item.date, item.available, item.note || '']);
+  dates.forEach((item: { date: string; start_time?: string; end_time?: string; note?: string }) => {
+    const start = item.start_time || '';
+    const end = item.end_time || '';
+    stmt.bind([employee_id, period_id, item.date, start && end ? 1 : 0, start, end, item.note || '']);
     stmt.step();
     stmt.reset();
   });

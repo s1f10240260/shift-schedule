@@ -3,7 +3,7 @@ import cors from 'cors';
 import path from 'path';
 import fs from 'fs';
 import os from 'os';
-import { initDatabase } from './models/database';
+import { initDatabase, getPersistenceInfo } from './models/database';
 import authRoutes from './routes/auth';
 import employeeRoutes from './routes/employees';
 import shiftRoutes from './routes/shifts';
@@ -27,6 +27,16 @@ async function startServer() {
   app.use('/api/settings', settingsRoutes);
   app.use('/api/preferences', preferencesRoutes);
   app.use('/api/email', emailRoutes);
+
+  app.get('/api/health', (req, res) => {
+    const info = getPersistenceInfo();
+    res.json({
+      status: 'ok',
+      remotePersistence: info.remote,
+      storage: info.kind,
+      ephemeralHost: !!(process.env.RENDER || process.env.RENDER_SERVICE_ID)
+    });
+  });
 
   // Serve built client when present (single-process production deploy)
   const clientDist = path.join(__dirname, '../../client/dist');

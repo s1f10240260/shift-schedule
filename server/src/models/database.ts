@@ -6,6 +6,138 @@ const dbDir = path.join(__dirname, '../../data');
 const dbPath = path.join(dbDir, 'shift_schedule.db');
 let db: SqlJsDatabase;
 
+const REMOTE_KEY = process.env.BACKUP_KEY || 'shift_schedule_db';
+const githubRepo = process.env.GITHUB_REPO || '';
+const githubPath = process.env.GITHUB_PATH || 'server/data/shift_schedule.db';
+const githubBranch = process.env.GITHUB_BRANCH || 'master';
+
+function remoteKind(): 'upstash' | 'github' | null {
+  if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) return 'upstash';
+  if (process.env.GITHUB_TOKEN && githubRepo) return 'github';
+  return null;
+}
+
+export function getPersistenceInfo(): { remote: boolean; kind: string } {
+  const kind = remoteKind();
+  return { remote: kind !== null, kind: kind || 'local' };
+}
+
+async function remoteLoad(): Promise<Buffer | null> {
+  const kind = remoteKind();
+  if (!kind) return null;
+
+  if (kind === 'upstash') {
+    const res = await fetch(process.env.UPSTASH_REDIS_REST_URL as string, {
+      method: 'POST',
+      headers: {
+        Authorization: 'Bearer ' + process.env.UPSTASH_REDIS_REST_TOKEN,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(['GET', REMOTE_KEY])
+    });
+    if (!res.ok) throw new Error('Upstash GET failed: ' + res.status);
+    const data: any = await res.json();
+    if (!data.result) return null;
+    return Buffer.from(data.result, 'base64');
+  }
+
+  const url = 'https://api.github.com/repos/' + githubRepo + '/contents/' + githubPath + '?ref=' + githubBranch;
+  const res = await fetch(url, {
+    headers: {
+      Authorization: 'Bearer ' + process.env.GITHUB_TOKEN,
+      Accept: 'application/vnd.github.raw',
+      'User-Agent': 'shift-schedule-server'
+    }
+  });
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error('GitHub GET failed: ' + res.status);
+  return Buffer.from(await res.arrayBuffer());
+}
+
+async function remoteSave(buffer: Buffer): Promise<void> {
+  const kind = remoteKind();
+  if (!kind) return;
+  const b64 = buffer.toString('base64');
+
+  if (kind === 'upstash') {
+    const res = await fetch(process.env.UPSTASH_REDIS_REST_URL as string, {
+      method: 'POST',
+      headers: {
+        Authorization: 'Bearer ' + process.env.UPSTASH_REDIS_REST_TOKEN,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(['SET', REMOTE_KEY, b64])
+    });
+    if (!res.ok) throw new Error('Upstash SET failed: ' + res.status);
+    return;
+  }
+
+  const apiBase = 'https://api.github.com/repos/' + githubRepo + '/contents/' + githubPath;
+  const headers: any = {
+    Authorization: 'Bearer ' + process.env.GITHUB_TOKEN,
+    Accept: 'application/vnd.github+json',
+    'User-Agent': 'shift-schedule-server',
+    'Content-Type': 'application/json'
+  };
+  let sha: string | undefined;
+  const metaRes = await fetch(apiBase + '?ref=' + githubBranch, { headers });
+  if (metaRes.ok) {
+    const meta: any = await metaRes.json();
+    sha = meta.sha;
+  }
+  const res = await fetch(apiBase, {
+    method: 'PUT',
+    headers,
+    body: JSON.stringify({
+      message: 'DB auto backup ' + new Date().toISOString(),
+      content: b64,
+      branch: githubBranch,
+      ...(sha ? { sha } : {})
+    })
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error('GitHub PUT failed: ' + res.status + ' ' + text);
+  }
+}
+
+let uploading = false;
+let queuedBackup: Buffer | null = null;
+
+async function uploadWithRetry(buffer: Buffer): Promise<void> {
+  for (let attempt = 1; attempt <= 4; attempt++) {
+    try {
+      await remoteSave(buffer);
+      return;
+    } catch (e) {
+      console.error('Remote backup attempt ' + attempt + ' failed:', e);
+      if (attempt < 4) {
+        await new Promise((r) => setTimeout(r, attempt * 1500));
+      }
+    }
+  }
+}
+
+async function flushRemoteBackup(): Promise<void> {
+  if (uploading) return;
+  uploading = true;
+  try {
+    while (queuedBackup) {
+      const buffer = queuedBackup;
+      queuedBackup = null;
+      await uploadWithRetry(buffer);
+    }
+  } finally {
+    uploading = false;
+  }
+}
+
+function scheduleRemoteBackup(buffer: Buffer): void {
+  if (!remoteKind()) return;
+  queuedBackup = buffer;
+  void flushRemoteBackup();
+}
+
 export async function getDb(): Promise<SqlJsDatabase> {
   if (!db) {
     if (!fs.existsSync(dbDir)) {
@@ -14,7 +146,23 @@ export async function getDb(): Promise<SqlJsDatabase> {
 
     const SQL = await initSqlJs();
 
-    if (fs.existsSync(dbPath)) {
+    let restored: Buffer | null = null;
+    const kind = remoteKind();
+    if (kind) {
+      try {
+        restored = await remoteLoad();
+        if (restored) {
+          console.log('Restored database from remote backup (' + kind + ')');
+        }
+      } catch (e) {
+        console.error('Remote restore failed, falling back to local file:', e);
+      }
+    }
+
+    if (restored) {
+      db = new SQL.Database(restored);
+      fs.writeFileSync(dbPath, restored);
+    } else if (fs.existsSync(dbPath)) {
       const buffer = fs.readFileSync(dbPath);
       db = new SQL.Database(buffer);
     } else {
@@ -28,6 +176,7 @@ function saveDb(): void {
   const data = db.export();
   const buffer = Buffer.from(data);
   fs.writeFileSync(dbPath, buffer);
+  scheduleRemoteBackup(buffer);
 }
 
 export async function initDatabase(): Promise<void> {
@@ -148,6 +297,8 @@ export async function initDatabase(): Promise<void> {
       period_id INTEGER NOT NULL,
       date TEXT NOT NULL,
       available INTEGER DEFAULT 1,
+      start_time TEXT DEFAULT '',
+      end_time TEXT DEFAULT '',
       note TEXT DEFAULT '',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE,
@@ -190,6 +341,14 @@ export async function initDatabase(): Promise<void> {
 
   try {
     database.run("ALTER TABLE employees ADD COLUMN email TEXT DEFAULT ''");
+  } catch (e) { }
+
+  try {
+    database.run("ALTER TABLE shift_preferences ADD COLUMN start_time TEXT DEFAULT ''");
+  } catch (e) { }
+
+  try {
+    database.run("ALTER TABLE shift_preferences ADD COLUMN end_time TEXT DEFAULT ''");
   } catch (e) { }
 
   insertDefaultHolidays(database);
